@@ -1,5 +1,18 @@
-package require struct::matrix
-package require report
+# reportx.tcl --
+#
+#	Implementation of matrix report formatting wrapper around report package.
+#
+# Copyright (c) 2013 by Nagarajan Chinnasamy <nagarajanchinnasamy@gmail.com>
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# 
+
+package require Tcl 8.2
+package require struct::matrix 2.0.1
+package require report 0.3.1
+
+package provide reportx 0.2.1
 
 namespace eval ::reportx {
 	namespace export format
@@ -10,22 +23,46 @@ namespace eval ::reportx {
 	proc _format_report {report_def} {}
 }
 
-proc ::reportx::_print_matrix {mx {stylename {}} args} {
-	set options ""
-	if {$stylename != ""} {
-		lappend options style $stylename
+# ::reportx::format	 --
+#
+#
+#	Format a report according to the structure defined by
+#	template. When supplied, applies variable substitution
+#	and style definitions.
+#
+# Arguments:
+#	template	template that defines the report structure
+#	subst_data	Optional name-value list to be subst-ed on the template
+#	styles_def	Optional list of style definitions
+#
+# Results:
+#	formattedreport	Formatted report as a string
+#
+
+proc ::reportx::format {template {subst_data ""} {styles_def ""}} {
+	dict with subst_data {}
+	set report_def [subst -nobackslashes -nocommands $template]
+
+	foreach {stylename styleargs stylescript} $styles_def {
+		::report::defstyle $stylename $styleargs $stylescript
 	}
 	
-	::report::report r [$mx columns] {*}$options
-	foreach {colno colsize colalign} $args {
-		r size $colno $colsize
-		r justify $colno $colalign
-	}
-
-	set result [r printmatrix $mx]
-	r destroy
-	return $result
+	return [_format_report $report_def]
 }
+
+# ::reportx::_format_report	 --
+#
+#
+#	Prepare formatted report according to the structure defined by
+#	report_def. Calls itself recursively if a cell contains nested
+#	-report definition.
+#
+# Arguments:
+#	report_def	a variable substituted template definition
+#
+# Results:
+#	formattedreport	Formatted report of a -report definition
+#
 
 proc ::reportx::_format_report {report_def} {
 
@@ -96,13 +133,30 @@ proc ::reportx::_format_report {report_def} {
 	return $formattedreport
 }
 
-proc ::reportx::format {template {subst_data ""} {styles_def ""}} {
-	dict with subst_data {}
-	set report_def [subst -nobackslashes -nocommands $template]
+# ::reportx::_print_matrix	 --
+#
+#	Format the contents of a matrix using report::printmatrix and return
+#	the formatted matrix
+#
+# Arguments:
+#	mx		matrix with content to be formatted
+#	style	Optional style definition
+#
+# Results:
+#	formattedmx	Formatted matrix as a string
+#
 
-	foreach {stylename styleargs stylescript} $styles_def {
-		::report::defstyle $stylename $styleargs $stylescript
+proc ::reportx::_print_matrix {mx {style {}}} {
+	set options ""
+	if {$style != ""} {
+		lappend options style $style
 	}
 	
-	return [_format_report $report_def]
+	::report::report r [$mx columns] {*}$options
+
+	set formattedmx [r printmatrix $mx]
+	r destroy
+
+	return $formattedmx
 }
+

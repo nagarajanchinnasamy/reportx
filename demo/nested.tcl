@@ -1,3 +1,15 @@
+# invoice.tcl --
+#
+#	Nested tables demo of reportx package
+#
+# Copyright (c) 2013 by Nagarajan Chinnasamy <nagarajanchinnasamy@gmail.com>
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+#
+
+package require reportx 0.2.1
+
 set template {
 	-report {
 		-rows {
