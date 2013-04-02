@@ -67,6 +67,18 @@ proc ::reportx::format {template {subst_data ""} {styles_def ""}} {
 proc ::reportx::_format_report {report_def} {
 
 	set reportmx [struct::matrix]
+	set reportstyle ""
+	if {[dict exists $report_def -report -style]} {
+		set reportstyle [dict get $report_def -report -style]
+		dict unset report_def -report -style
+	}
+
+	set rowsstyle ""
+	if {[dict exists $report_def -report -rows -style]} {
+		set rowsstyle [dict get $report_def -report -rows -style]
+		dict unset report_def -report -rows -style
+	}
+	
 	set rownums [lsort -integer [dict keys [dict get $report_def -report -rows]]]
 
 	$reportmx add rows [llength $rownums]
@@ -76,7 +88,12 @@ proc ::reportx::_format_report {report_def} {
 	foreach rownum $rownums {
 		set row_def [dict create {*}[dict get $report_def -report -rows $rownum]]
 		set rowmx [struct::matrix]
-		
+
+		set columnsstyle ""
+		if {[dict exists $row_def -columns -style]} {
+			set columnsstyle [dict get $row_def -columns -style]
+			dict unset row_def -columns -style
+		}
 		set colnums [lsort -integer [dict keys [dict get $row_def -columns]]]
 
 		$rowmx add rows 1
@@ -106,28 +123,29 @@ proc ::reportx::_format_report {report_def} {
 			if {[dict exists $col_def -style]} {
 				lappend formattedcols [_print_matrix $colmx [dict get $col_def -style]]
 			} else {
-				lappend formattedcols [_print_matrix $colmx]
+				lappend formattedcols [_print_matrix $colmx {*}$columnsstyle]
 			}
+puts stderr "row: $rownum  col: $colnum"
+puts stderr "formattedcols: $formattedcols"
+			$colmx destroy
 		}
 
 		$rowmx set row 0 $formattedcols
 		if {[dict exists $row_def -style]} {
 			lappend formattedrows [_print_matrix $rowmx [dict get $row_def -style]]
 		} else {
-			lappend formattedrows [_print_matrix $rowmx]
+			lappend formattedrows [_print_matrix $rowmx {*}$rowsstyle]
 		}
+
+puts stderr "row: $rownum"
+puts stderr "formattedrows: $formattedrows"
 		
 		$rowmx destroy
 	}
 
 	$reportmx set column 0 $formattedrows
 
-	if {[dict exists $report_def -report -style]} {
-		set formattedreport [_print_matrix $reportmx [dict get $report_def -report -style]]
-	} else {
-		set formattedreport [_print_matrix $reportmx]
-	}
-
+	set formattedreport [_print_matrix $reportmx {*}$reportstyle]
 	$reportmx destroy
 
 	return $formattedreport
@@ -154,7 +172,7 @@ proc ::reportx::_print_matrix {mx {style {}}} {
 	
 	::report::report r [$mx columns] {*}$options
 
-	set formattedmx [r printmatrix $mx]
+	set formattedmx [string trim [r printmatrix $mx] "\r\n"]
 	r destroy
 
 	return $formattedmx

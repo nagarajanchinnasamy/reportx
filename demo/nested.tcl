@@ -1,4 +1,4 @@
-# invoice.tcl --
+# nested.tcl --
 #
 #	Nested tables demo of reportx package
 #
@@ -12,9 +12,9 @@ package require reportx 0.2.1
 
 set template {
 	-report {
-		-rows {
+		-rows { -style row
 			1 {
-				-style table -columns {
+				-columns {
 					1 {
 						-data {
 							{ "1st Row 1st Column. The column to the right has the second table in it." }
@@ -22,7 +22,7 @@ set template {
 					}
 					2 {
 						-report {
-							 -style table -rows {
+							-rows { -style row
 								1 {
 									-columns {
 										1 {
@@ -51,7 +51,7 @@ set template {
 }
 
 set styles_def {
-	table {} {
+	row {} {
 		# Top and bottom lines
 		top       set "[string repeat "+ = " [columns]]+"
 		bottom    set [top get]
