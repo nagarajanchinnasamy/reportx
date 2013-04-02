@@ -1,20 +1,20 @@
 # nested.tcl --
 #
-#	Nested tables demo of reportx package
+#	Invoice printing demo of reportx package
 #
 # Copyright (c) 2013 by Nagarajan Chinnasamy <nagarajanchinnasamy@gmail.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
+# 
 
-package require reportx 0.2.1
+package require reportx 0.2.2
 
 set template {
 	-report {
-		-rows { -style row
+		-rows {
 			1 {
-				-columns {
+				-style table -columns {
 					1 {
 						-data {
 							{ "1st Row 1st Column. The column to the right has the second table in it." }
@@ -22,7 +22,7 @@ set template {
 					}
 					2 {
 						-report {
-							-rows { -style row
+							 -style table -rows {
 								1 {
 									-columns {
 										1 {
@@ -51,7 +51,7 @@ set template {
 }
 
 set styles_def {
-	row {} {
+	table {} {
 		# Top and bottom lines
 		top       set "[string repeat "+ = " [columns]]+"
 		bottom    set [top get]

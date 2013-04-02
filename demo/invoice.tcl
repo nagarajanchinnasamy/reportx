@@ -9,15 +9,15 @@
 # 
 
 
-package require reportx 0.2.1
+package require reportx 0.2.2
 
 set template {
-	-report {
-		-style invoice -rows {
+	-report { -style invoice
+		-rows {
 			1 {
 				-columns {
-					1 {
-						-style invoiceHeader -data {
+					1 { -datastyle invoiceHeader
+						-data {
 							{ "${-company_name}" }
 							{ "${-company_street1}, ${-company_street2}, ${-company_city}-${-company_pin}" }
 							{ "TIN: ${-company_tin}, Phone: ${-company_phone1} EMail: ${-company_email1}" }
@@ -25,10 +25,10 @@ set template {
 					}
 				}
 			}
-			2 {
-				-style addressInvoiceInfo -columns {
-					1 {
-						-style partyAddress -data {
+			2 { -style addressInvoiceInfo
+				-columns {
+					1 { -datastyle partyAddress
+						-data {
 							{ "B I L L E D    T O:" }
 							{ "${-buyer_title}. ${-buyer_name}" }
 							{ "${-buyer_street1}, ${-buyer_street2}, ${-buyer_city}-${-buyer_pin}" }
@@ -38,8 +38,8 @@ set template {
 							{ "TIN: ${-buyer_tin}" }
 						}
 					}
-					2 {
-						-style invoiceInfo -data {
+					2 { -datastyle invoiceInfo
+						-data {
 							{ "I N V O I C E" ""}
 							{ "Invoice No." "${-invoice_no}" }
 							{ "Invoice Date" "${-invoice_date}" }
@@ -49,8 +49,8 @@ set template {
 			}
 			3 {
 				-columns {
-					1 {
-						-style transportInfo -data {
+					1 { -datastyle transportInfo
+						-data {
 							{ From ${-transport_fromcity} To ${-transport_tocity} "Bale No." "${-transport_baleno}" }
 							{ Transport "${-transport_service}, ${-transport_lrno}" "LR Date" "${-transport_lrdate}" Weight "${-transport_weight}" }
 						}
@@ -59,8 +59,8 @@ set template {
 			}
 			4 {
 				-columns {
-					1 {
-						-style particularsTable -data {
+					1 { -datastyle particularsTable
+						-data {
 							{ "S.No." "Particulars" "Qty/Mts" "Price" "Amount" }
 							${-delivery_items}
 							{ "" "E. & O.E.                                   TOTAL" "" "" "${-delivery_totalamt}" }
@@ -70,17 +70,17 @@ set template {
 			}
 			5 {
 				-columns {
-					1 {
-						-style rupeesInWords -data {
+					1 { -datastyle rupeesInWords
+						-data {
 							{ "RUPEES ${-delivery_rupeesinwords} Only" }
 						}
 					}
 				}
 			}
-			6 {
-				-style notesAndFor -columns {
-					1 {
-						-style notesAndConditions -data {
+			6 { -style notesAndFor
+				-columns {
+					1 { -datastyle notesAndConditions
+						-data {
 							{ "N O T E S:" }
 							{ "    * Interest 24% will be charged from the date of issue" }
 							{ "    * Payment should be made by Draft only" }
@@ -89,7 +89,8 @@ set template {
 						}
 					}
 					2 {
-						-style forSignature -data {
+						-datastyle forSignature
+						-data {
 							{ "For ${-company_name}" }
 							{ "" }
 							{ "" }
@@ -101,7 +102,6 @@ set template {
 			}
 		}
 	}
-
 }
 
 set styles_def {

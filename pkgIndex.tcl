@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded reportx 0.2.1 [list source [file join $dir reportx.tcl]]
+package ifneeded reportx 0.2.2 [list source [file join $dir reportx.tcl]]
