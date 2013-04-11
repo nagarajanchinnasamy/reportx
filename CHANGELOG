@@ -1,0 +1,14 @@
+Version: 0.2.2
+Date: 2013-4-11
+Changes:
+  1. Supports -style key in -rows element.
+  2. Supports -style key in -columns element.
+  3. Introduced -datastyle key for a -data element to have its own style definition
+  4. Changed the demo applications to reflect the -style and -datastyle changes
+  5. CHANGELOG added
+
+Version: 0.2.1
+Date: 2013-4-01
+Changes:
+  1. Bundled into ::reportx tcl package with version 0.2.1.
+  2. pkgIndex.tcl and demo directory are included
