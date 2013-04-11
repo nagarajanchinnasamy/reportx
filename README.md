@@ -21,4 +21,6 @@ The signature of this method is:
 
 ::reportx::format method returns a string that contains the entire formatted report that can be sent to a printing framework.
 
-For more details please visit: http://nagarajanchinnasamy.blogspot.in/2013/03/reportx-tcl-framework-to-generate.html
+For more details please visit:
+    http://nagarajanchinnasamy.blogspot.in/2013/03/reportx-tcl-framework-to-generate.html
+    http://nagarajanchinnasamy.blogspot.in/2013/04/reportx-template-format.html
