@@ -34,8 +34,9 @@ namespace eval ::reportx {
 #
 # Arguments:
 #	template	template that defines the report structure
-#	subst_data	Optional name-value list to be subst-ed on the template
-#	styles_def	Optional list of style definitions
+#	args
+#     -subst	Optional name-value list to be subst-ed on the template
+#	  -styles	Optional list of style definitions
 #
 # Results:
 #	formattedtable	Formatted report as a string
