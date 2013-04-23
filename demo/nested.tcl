@@ -8,10 +8,10 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
 
-package require reportx 0.2.2
+package require reportx 0.2.3
 
 set template {
-	-report {
+	-table {
 		-rows {
 			1 {
 				-style table -columns {
@@ -21,7 +21,7 @@ set template {
 						}
 					}
 					2 {
-						-report {
+						-table {
 							 -style table -rows {
 								1 {
 									-columns {
@@ -66,4 +66,4 @@ set styles_def {
 	}
 }
 
-puts [::reportx::format $template {} $styles_def]
+puts [::reportx::format $template -styles $styles_def]

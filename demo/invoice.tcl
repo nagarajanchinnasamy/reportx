@@ -9,10 +9,10 @@
 # 
 
 
-package require reportx 0.2.2
+package require reportx 0.2.3
 
 set template {
-	-report { -style invoice
+	-table { -style invoice
 		-rows {
 			1 {
 				-columns {
@@ -255,7 +255,7 @@ set styles_def {
 	}
 }
 
-puts [::reportx::format $template {
+puts [::reportx::format $template -subst {
 		-company_name "Name Of My Company"
 		-company_street1 "Address Line 1"
 		-company_street2 "Address Line 2"
@@ -290,4 +290,4 @@ puts [::reportx::format $template {
 		}
 		-delivery_totalamt 4700.00
 		-delivery_rupeesinwords "Four Thousand Seven Hundred Only"
-	} $styles_def]
+	} -styles $styles_def]

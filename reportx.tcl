@@ -8,19 +8,21 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
 
-package require Tcl 8.2
+package require Tcl 8.5
 package require struct::matrix 2.0.1
 package require report 0.3.1
 
-package provide reportx 0.2.2
+package provide reportx 0.2.3
 
 namespace eval ::reportx {
 	namespace export format
 
-	proc format {template {subst_data ""} {styles_def ""}} {}
+	proc format {template args} {}
 
+	proc _format_table {table_def} {}
+	proc _format_report {template formattedtable} {}
+	proc _subst_table {table_def subst_data} {}
 	proc _print_matrix {mx {stylename {}} args} {}
-	proc _format_report {report_def} {}
 }
 
 # ::reportx::format	 --
@@ -36,57 +38,92 @@ namespace eval ::reportx {
 #	styles_def	Optional list of style definitions
 #
 # Results:
-#	formattedreport	Formatted report as a string
+#	formattedtable	Formatted report as a string
 #
 
-proc ::reportx::format {template {subst_data ""} {styles_def ""}} {
-	dict with subst_data {}
-	set report_def [subst -nobackslashes -nocommands $template]
+proc ::reportx::format {template args} {
+
+	set subst_data [list]
+	set styles_def [list]
+
+	foreach {opt val} $args {
+		switch -- $opt {
+			-subst {
+				set subst_data $val
+			}
+			-styles {
+				set styles_def $val
+			}
+			default {
+				return -code error "Unknown option: $opt"
+			}
+		}
+	}
+
+	set table_def [list -table [dict get $template -table]]
+	set table_def [_subst_table $table_def $subst_data]
 
 	foreach {stylename styleargs stylescript} $styles_def {
 		::report::defstyle $stylename $styleargs $stylescript
 	}
 	
-	return [_format_report $report_def]
+	return [_format_report $template [_format_table $table_def]]
 }
 
-# ::reportx::_format_report	 --
+# ::reportx::_subst_table	 --
 #
 #
-#	Prepare formatted report according to the structure defined by
-#	report_def. Calls itself recursively if a cell contains nested
-#	-report definition.
+#	Substitute variables in table definition as per name value list
 #
 # Arguments:
-#	report_def	a variable substituted template definition
+#	table_def	table definition
+#	subst_data	name-value list to be subst-ed on the table_def
 #
 # Results:
-#	formattedreport	Formatted report of a -report definition
+#	substed_def	a variable-substituted table definition
+#
+proc ::reportx::_subst_table {table_def subst_data} {
+	dict with subst_data {}
+	return [subst -nobackslashes -nocommands $table_def]
+}
+
+# ::reportx::_format_table	 --
+#
+#
+#	Prepare formatted table according to the structure defined by
+#	table_def. Calls itself recursively if a cell contains nested
+#	-table definition.
+#
+# Arguments:
+#	table_def	a variable-substituted table definition
+#
+# Results:
+#	formattedtable	Formatted report of a -table definition
 #
 
-proc ::reportx::_format_report {report_def} {
+proc ::reportx::_format_table {table_def} {
 
-	set reportmx [struct::matrix]
-	set reportstyle ""
-	if {[dict exists $report_def -report -style]} {
-		set reportstyle [dict get $report_def -report -style]
-		dict unset report_def -report -style
+	set tablemx [struct::matrix]
+	set tablestyle ""
+	if {[dict exists $table_def -table -style]} {
+		set tablestyle [dict get $table_def -table -style]
+		dict unset table_def -table -style
 	}
 
 	set rowsstyle ""
-	if {[dict exists $report_def -report -rows -style]} {
-		set rowsstyle [dict get $report_def -report -rows -style]
-		dict unset report_def -report -rows -style
+	if {[dict exists $table_def -table -rows -style]} {
+		set rowsstyle [dict get $table_def -table -rows -style]
+		dict unset table_def -table -rows -style
 	}
 	
-	set rownums [lsort -integer [dict keys [dict get $report_def -report -rows]]]
+	set rownums [lsort -integer [dict keys [dict get $table_def -table -rows]]]
 
-	$reportmx add rows [llength $rownums]
-	$reportmx add columns 1
+	$tablemx add rows [llength $rownums]
+	$tablemx add columns 1
 
 	set formattedrows ""
 	foreach rownum $rownums {
-		set row_def [dict create {*}[dict get $report_def -report -rows $rownum]]
+		set row_def [dict create {*}[dict get $table_def -table -rows $rownum]]
 		set rowmx [struct::matrix]
 
 		set rowstyle $rowsstyle
@@ -119,10 +156,10 @@ proc ::reportx::_format_report {report_def} {
 			}
 
 			set datamx [struct::matrix]
-			if {[dict exists $col_def -report]} {
+			if {[dict exists $col_def -table]} {
 				$datamx add rows 1
 				$datamx add columns 1
-				$datamx set column 0 [list [_format_report $col_def]]
+				$datamx set column 0 [list [_format_table $col_def]]
 			} else {
 				set datastyle ""
 				if {[dict exists $col_def -datastyle]} {
@@ -153,11 +190,29 @@ proc ::reportx::_format_report {report_def} {
 		$rowmx destroy
 	}
 
-	$reportmx set column 0 $formattedrows
-	set formattedreport [_print_matrix $reportmx {*}$reportstyle]
-	$reportmx destroy
+	$tablemx set column 0 $formattedrows
+	set formattedtable [_print_matrix $tablemx {*}$tablestyle]
+	$tablemx destroy
 
-	return $formattedreport
+	return $formattedtable
+}
+
+# ::reportx::_format_report	 --
+#
+#
+#	Prepare final formatted report from formatted table as per the
+#	directives in template
+#
+# Arguments:
+#	template	template definition
+#	formattedtable
+#	            formatted table - output of _format_table
+#
+# Results:
+#	formattedreport	Formatted report
+#
+proc ::reportx::_format_report {template formattedtable} {
+	return $formattedtable
 }
 
 # ::reportx::_print_matrix	 --
